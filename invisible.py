@@ -9,7 +9,9 @@ def click(event,x,y,flags,param):
 cap = cv2.VideoCapture(0)
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
-out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+#out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+# Change this line
+out = cv2.VideoWriter('outpy.mp4', cv2.VideoWriter_fourcc(*'MP4V'), 10, (frame_width, frame_height))
 time.sleep(3);
 
 for i in range(40):
@@ -33,7 +35,9 @@ while(True):
         #deep_blue_l = np.array([100,100,100]);
         #deep_blue_h = np.array([111,255,255]);
         deep_blue_l = np.array([45,70,40]);
-        deep_blue_h = np.array([111,255,255]);
+        deep_blue_h = np.array([130,255,255]);
+        #gray_l = np.array([100,35,55]);
+        #gray_h = np.array([130,90,85]);
         mask_low = cv2.inRange(hsv_frame,deep_blue_l,deep_blue_h);
 
         #red_l = np.array([340,120,70]);
@@ -42,8 +46,10 @@ while(True):
 
         mask = mask_low
 
-        mask1 = cv2.morphologyEx(mask,cv2.MORPH_OPEN,np.ones((3,3),np.uint8));
-        mask2 = cv2.morphologyEx(mask1,cv2.MORPH_DILATE,np.ones((3,3),np.uint8));
+        mask1 = cv2.morphologyEx(mask,cv2.MORPH_OPEN,np.ones((7,7),np.uint8))
+        mask2 = cv2.morphologyEx(mask1,cv2.MORPH_DILATE,np.ones((7,7),np.uint8))
+        mask2 = cv2.morphologyEx(mask2, cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
+        mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, np.ones((20,20),np.uint8))
 
         mask1 = cv2.bitwise_not(mask2)
         frame_new = cv2.bitwise_and(frame,frame,mask=mask1)
@@ -54,6 +60,7 @@ while(True):
         
         
         magic_frame = cv2.addWeighted(frame_new,1,cloth,1,0)
+        
         out.write(magic_frame)
         hsv_frame_disp = cv2.cvtColor(magic_frame,cv2.COLOR_BGR2HSV);
         #cv2.imshow('image',mask)
